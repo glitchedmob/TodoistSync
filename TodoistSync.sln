@@ -1,8 +1,8 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TodoistSync.Tests", "TodoistSync\test\TodoistSync.Tests\TodoistSync.Tests.csproj", "{B4D83E4E-4719-4F7F-A66F-D61D642047A6}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TodoistSync.Tests", "TodoistSync.Tests\TodoistSync.Tests.csproj", "{B4D83E4E-4719-4F7F-A66F-D61D642047A6}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TodoistSync", "TodoistSync\src\TodoistSync\TodoistSync.csproj", "{CAC9D405-2208-4E7C-B518-612A2B99B8A7}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TodoistSync", "TodoistSync\TodoistSync.csproj", "{CAC9D405-2208-4E7C-B518-612A2B99B8A7}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
