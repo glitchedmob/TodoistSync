@@ -20,9 +20,8 @@ namespace TodoistSync.Controllers
         [HttpPost("webhook")]
         public async Task<IActionResult> Webhook(Clickup.WebhookEvent webhookEvent)
         {
-            // var task = _clickupService.GetTaskById(webhookEvent.TaskId);
-            Console.WriteLine(webhookEvent.Event);
-            Console.WriteLine(webhookEvent.TaskId);
+            var task = await _clickupService.GetTaskById(webhookEvent.TaskId);
+            Console.WriteLine(task.Name);
             return Ok("clickup webhook");
         }
     }
