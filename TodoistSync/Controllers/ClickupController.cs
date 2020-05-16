@@ -11,17 +11,27 @@ namespace TodoistSync.Controllers
     public class ClickupController : ControllerBase
     {
         private readonly ClickupService _clickupService;
+        private readonly TodoistService _todoistService;
 
-        public ClickupController(ClickupService clickupService)
+        public ClickupController(ClickupService clickupService, TodoistService todoistService)
         {
             _clickupService = clickupService;
+            _todoistService = todoistService;
         }
 
         [HttpPost("webhook")]
         public async Task<IActionResult> Webhook(Clickup.WebhookEvent webhookEvent)
         {
+            if (webhookEvent.Event == Clickup.WebhookEventType.TaskDeleted)
+            {
+                await _todoistService.DeleteClickupTaskIfExists(webhookEvent.TaskId);
+                return Ok();
+            }
+
             var task = await _clickupService.GetTaskById(webhookEvent.TaskId);
-            Console.WriteLine(task.Name);
+
+            await _todoistService.CreateOrUpdateClickupTask(task);
+
             return Ok("clickup webhook");
         }
     }
