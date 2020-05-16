@@ -1,0 +1,12 @@
+.idea
+.vscode
+.vs
+.DS_Store
+*.sln.DotSettings.user
+[Dd]ebug/
+[Dd]ebugPublic/
+[Rr]elease/
+[Rr]eleases/
+[Bb]in/
+[Oo]bj/
+[Ll]og/
