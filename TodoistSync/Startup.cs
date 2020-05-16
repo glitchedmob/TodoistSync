@@ -4,6 +4,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using TodoistSync.Middleware;
+using TodoistSync.Services;
 
 namespace TodoistSync
 {
@@ -20,6 +21,8 @@ namespace TodoistSync
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllers();
+
+            services.AddSingleton<ClickupService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline
