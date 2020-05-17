@@ -1,15 +1,54 @@
+using System;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
+using TodoistSync.Repositories;
+using TodoistSync.Services;
+using Todoist = TodoistSync.Models.Todoist;
 
 namespace TodoistSync.Controllers
 {
     [Route("[controller]")]
+    [ApiController]
     public class TodoistController : ControllerBase
     {
-        [HttpGet("webhook")]
-        public async Task<IActionResult> Webhook()
+        private readonly ClickupService _clickupService;
+        private readonly ClickupRepository _clickupRepository;
+        private readonly TodoistRepository _todoistRepository;
+
+        public TodoistController(
+            ClickupService clickupService,
+            ClickupRepository clickupRepository,
+            TodoistRepository todoistRepository)
         {
-            return Ok("todoist webhook");
+            _clickupService = clickupService;
+            _clickupRepository = clickupRepository;
+            _todoistRepository = todoistRepository;
+        }
+
+        [HttpPost("webhook")]
+        public async Task<IActionResult> Webhook(Todoist.WebhookEvent webhookEvent)
+        {
+            if (!webhookEvent.EventData.Labels.Contains(_todoistRepository.ClickupLabelId))
+            {
+                return Ok();
+            }
+
+            if (webhookEvent.EventName == "item:completed")
+            {
+                var clickupTaskId = _clickupService.GetClickupIdFromTodoistContent(webhookEvent.EventData.Content);
+
+                if (clickupTaskId == null)
+                {
+                    return Ok();
+                }
+
+                await _clickupRepository.CompleteTask(clickupTaskId);
+
+                return Ok();
+            }
+
+            return Ok();
         }
     }
 }

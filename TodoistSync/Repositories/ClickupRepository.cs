@@ -1,6 +1,7 @@
 using System;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
@@ -28,6 +29,18 @@ namespace TodoistSync.Repositories
             var content = await _client.GetStringAsync($"task/{taskId}");
 
             return JsonConvert.DeserializeObject<Clickup.Task>(content);
+        }
+
+        public async Task CompleteTask(string taskId)
+        {
+            var json = JsonConvert.SerializeObject(new
+            {
+                status = "closed",
+            });
+
+            var content = new StringContent(json, Encoding.UTF8, "application/json");
+
+            await _client.PutAsync($"task/{taskId}", content);
         }
     }
 }

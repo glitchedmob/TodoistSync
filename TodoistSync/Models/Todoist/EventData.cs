@@ -7,46 +7,46 @@ namespace TodoistSync.Models.Todoist
     public class EventData
     {
         [JsonProperty("is_deleted")]
-        public long IsDeleted { get; set; }
+        public long? IsDeleted { get; set; }
 
         [JsonProperty("assigned_by_uid")]
         public string AssignedByUid { get; set; }
 
         [JsonProperty("labels")]
-        public List<string> Labels { get; set; }
+        public List<long> Labels { get; set; }
 
         [JsonProperty("sync_id")]
-        public string SyncId { get; set; }
+        public long? SyncId { get; set; }
 
         [JsonProperty("section_id")]
-        public string SectionId { get; set; }
+        public long? SectionId { get; set; }
 
         [JsonProperty("in_history")]
-        public long InHistory { get; set; }
+        public long? InHistory { get; set; }
 
         [JsonProperty("child_order")]
-        public long ChildOrder { get; set; }
+        public long? ChildOrder { get; set; }
 
         [JsonProperty("date_added")]
-        public DateTimeOffset DateAdded { get; set; }
+        public DateTimeOffset? DateAdded { get; set; }
 
         [JsonProperty("checked")]
-        public long Checked { get; set; }
+        public long? Checked { get; set; }
 
         [JsonProperty("id")]
-        public long Id { get; set; }
+        public long? Id { get; set; }
 
         [JsonProperty("content")]
         public string Content { get; set; }
 
         [JsonProperty("date_completed")]
-        public object DateCompleted { get; set; }
+        public DateTimeOffset? DateCompleted { get; set; }
 
         [JsonProperty("added_by_uid")]
-        public long AddedByUid { get; set; }
+        public long? AddedByUid { get; set; }
 
         [JsonProperty("user_id")]
-        public long UserId { get; set; }
+        public long? UserId { get; set; }
 
         [JsonProperty("url")]
         public Uri Url { get; set; }
@@ -55,7 +55,7 @@ namespace TodoistSync.Models.Todoist
         public Task Due { get; set; }
 
         [JsonProperty("priority")]
-        public long Priority { get; set; }
+        public long? Priority { get; set; }
 
         [JsonProperty("parent_id")]
         public string ParentId { get; set; }
@@ -64,15 +64,15 @@ namespace TodoistSync.Models.Todoist
         public string ResponsibleUid { get; set; }
 
         [JsonProperty("project_id")]
-        public long ProjectId { get; set; }
+        public long? ProjectId { get; set; }
 
         [JsonProperty("collapsed")]
-        public long Collapsed { get; set; }
+        public long? Collapsed { get; set; }
 
         public class EventDataDue
         {
             [JsonProperty("date")]
-            public DateTimeOffset Date { get; set; }
+            public DateTimeOffset? Date { get; set; }
 
             [JsonProperty("timezone")]
             public string Timezone { get; set; }

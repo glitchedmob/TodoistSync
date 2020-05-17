@@ -11,7 +11,7 @@ namespace TodoistSync.Models.Todoist
         public string ImageId { get; set; }
 
         [JsonProperty("id")]
-        public long Id { get; set; }
+        public long? Id { get; set; }
 
         [JsonProperty("full_name")]
         public string FullName { get; set; }

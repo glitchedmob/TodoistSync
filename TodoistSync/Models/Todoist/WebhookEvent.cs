@@ -14,7 +14,7 @@ namespace TodoistSync.Models.Todoist
         public string Version { get; set; }
 
         [JsonProperty("user_id")]
-        public long UserId { get; set; }
+        public long? UserId { get; set; }
 
         [JsonProperty("event_data")]
         public EventData EventData { get; set; }

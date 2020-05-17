@@ -60,6 +60,12 @@ namespace TodoistSync.Services
                 return;
             }
 
+            // Don't add already closed to tasks to Todoist
+            if (clickupTask.Status.Type == "closed")
+            {
+                return;
+            }
+
             await CreateTodoistTask(clickupTask);
         }
 
@@ -80,9 +86,9 @@ namespace TodoistSync.Services
             await _todoistRepository.UpdateTask(existingTask, FormatTodoistContent(clickupTask));
         }
 
-        private string GetClickupIdFromTodoistTask(Todoist.Task task)
+        public string GetClickupIdFromTodoistContent(string content)
         {
-            var clickupLink = task.Content
+            var clickupLink = content
                 .Split('(', ')')
                 .FirstOrDefault(s => s.StartsWith("https://app.clickup.com/"));
 
@@ -91,6 +97,11 @@ namespace TodoistSync.Services
                 : clickupLink
                     .Replace("https://app.clickup.com/t/", "")
                     .Replace("/", "");
+        }
+
+        public string GetClickupIdFromTodoistTask(Todoist.Task task)
+        {
+            return GetClickupIdFromTodoistContent(task.Content);
         }
 
         private string FormatTodoistContent(Clickup.Task clickupTask)
