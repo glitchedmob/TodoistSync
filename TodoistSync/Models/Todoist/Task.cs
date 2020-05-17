@@ -15,7 +15,7 @@ namespace TodoistSync.Models.Todoist
         public string Content { get; set; }
         public bool Completed { get; set; }
         [JsonProperty("label_ids")]
-        public List<string> LabelIds { get; set; }
+        public List<long> LabelIds { get; set; }
         public long Priority { get; set; }
         [JsonProperty("comment_count")]
         public long CommentCount { get; set; }

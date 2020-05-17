@@ -12,21 +12,21 @@ namespace TodoistSync.Repositories
 {
     public class TodoistRepository
     {
-        public readonly string ClickupLabelId;
+        public readonly long ClickupLabelId;
         private readonly HttpClient _client;
 
         public TodoistRepository(HttpClient client, IConfiguration configuration)
         {
             _client = client;
-            ClickupLabelId = configuration["TODOIST_CLICKUP_LABEL_ID"];
+            ClickupLabelId = long.Parse(configuration["TODOIST_CLICKUP_LABEL_ID"]);
             _client.BaseAddress = new Uri("https://api.todoist.com/rest/v1/");
             _client.DefaultRequestHeaders.Authorization =
                 new AuthenticationHeaderValue("Bearer", configuration["TODOIST_API_KEY"]);
         }
 
-        public async Task<List<Todoist.Task>> GetTasksByLabelId(string labelId)
+        public async Task<List<Todoist.Task>> GetTasksByLabelId(long labelId)
         {
-            var content = await _client.GetStringAsync($"tasks?label_id={ClickupLabelId}");
+            var content = await _client.GetStringAsync($"tasks?label_id={labelId}");
 
             return JsonConvert.DeserializeObject<List<Todoist.Task>>(content);
         }
@@ -38,7 +38,7 @@ namespace TodoistSync.Repositories
 
         public async Task CreateTask(
             string content,
-            List<string> labelIds,
+            List<long> labelIds,
             string dueDate = null,
             DateTimeOffset? dueDatetime = null)
         {
@@ -49,6 +49,7 @@ namespace TodoistSync.Repositories
                 DueDate = dueDate,
                 DueDatetime = dueDatetime,
             });
+
             var postContent = new StringContent(json, Encoding.UTF8, "application/json");
             await _client.PostAsync("tasks", postContent);
         }
@@ -56,7 +57,7 @@ namespace TodoistSync.Repositories
         public async Task UpdateTask(
             Todoist.Task task,
             string content = null,
-            List<string> labelIds = null,
+            List<long> labelIds = null,
             string dueDate = null,
             DateTimeOffset? dueDatetime = null)
         {
@@ -78,8 +79,8 @@ namespace TodoistSync.Repositories
         [JsonObject(ItemNullValueHandling = NullValueHandling.Ignore)]
         private class TaskPostBody
         {
-            public string Content { get; set; }
-            [JsonProperty("label_ids")] public List<string> LabelIds { get; set; }
+            [JsonProperty("content")] public string Content { get; set; }
+            [JsonProperty("label_ids")] public List<long> LabelIds { get; set; }
             [JsonProperty("due_date")] public string DueDate { get; set; }
             [JsonProperty("due_datetime")] public DateTimeOffset? DueDatetime { get; set; }
         }
