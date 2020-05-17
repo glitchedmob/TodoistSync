@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using Newtonsoft.Json;
 
 namespace TodoistSync.Models.Todoist
@@ -9,16 +10,16 @@ namespace TodoistSync.Models.Todoist
         public long IsDeleted { get; set; }
 
         [JsonProperty("assigned_by_uid")]
-        public object AssignedByUid { get; set; }
+        public string AssignedByUid { get; set; }
 
         [JsonProperty("labels")]
-        public object[] Labels { get; set; }
+        public List<string> Labels { get; set; }
 
         [JsonProperty("sync_id")]
-        public object SyncId { get; set; }
+        public string SyncId { get; set; }
 
         [JsonProperty("section_id")]
-        public object SectionId { get; set; }
+        public string SectionId { get; set; }
 
         [JsonProperty("in_history")]
         public long InHistory { get; set; }
@@ -57,24 +58,24 @@ namespace TodoistSync.Models.Todoist
         public long Priority { get; set; }
 
         [JsonProperty("parent_id")]
-        public object ParentId { get; set; }
+        public string ParentId { get; set; }
 
         [JsonProperty("responsible_uid")]
-        public object ResponsibleUid { get; set; }
+        public string ResponsibleUid { get; set; }
 
         [JsonProperty("project_id")]
         public long ProjectId { get; set; }
 
         [JsonProperty("collapsed")]
         public long Collapsed { get; set; }
-        
-        public class TaskDue
+
+        public class EventDataDue
         {
             [JsonProperty("date")]
             public DateTimeOffset Date { get; set; }
 
             [JsonProperty("timezone")]
-            public object Timezone { get; set; }
+            public string Timezone { get; set; }
 
             [JsonProperty("is_recurring")]
             public bool IsRecurring { get; set; }
