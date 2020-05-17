@@ -4,7 +4,7 @@ namespace TodoistSync.Models.Clickup
 {
     public class User
     {
-        public long Id { get; set; }
+        public string Id { get; set; }
         public string Username { get; set; }
         public string Color { get; set; }
         public string Initials { get; set; }

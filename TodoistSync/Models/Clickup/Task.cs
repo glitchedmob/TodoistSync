@@ -26,7 +26,7 @@ namespace TodoistSync.Models.Clickup
         public List<Checklist> Checklists { get; set; }
         public List<Tag> Tags { get; set; }
         public string Parent { get; set; }
-        public Priority Priority { get; set; }
+        public TaskPriority Priority { get; set; }
         [JsonProperty("due_date")]
         public string DueDate { get; set; }
         [JsonProperty("start_date")]
