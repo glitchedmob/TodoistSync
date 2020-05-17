@@ -1,6 +1,7 @@
 using System;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using TodoistSync.Repositories;
 using Clickup = TodoistSync.Models.Clickup;
 using TodoistSync.Services;
 
@@ -11,12 +12,12 @@ namespace TodoistSync.Controllers
     public class ClickupController : ControllerBase
     {
         private readonly ClickupService _clickupService;
-        private readonly TodoistService _todoistService;
+        private readonly ClickupRepository _clickupRepository;
 
-        public ClickupController(ClickupService clickupService, TodoistService todoistService)
+        public ClickupController(ClickupService clickupService, ClickupRepository clickupRepository)
         {
             _clickupService = clickupService;
-            _todoistService = todoistService;
+            _clickupRepository = clickupRepository;
         }
 
         [HttpPost("webhook")]
@@ -24,15 +25,15 @@ namespace TodoistSync.Controllers
         {
             if (webhookEvent.Event == Clickup.WebhookEventType.TaskDeleted)
             {
-                await _todoistService.DeleteClickupTaskIfExists(webhookEvent.TaskId);
+                await _clickupService.DeleteTodoistTaskIfExists(webhookEvent.TaskId);
                 return Ok();
             }
 
-            var task = await _clickupService.GetTaskById(webhookEvent.TaskId);
+            var task = await _clickupRepository.GetTaskById(webhookEvent.TaskId);
 
-            await _todoistService.CreateOrUpdateClickupTask(task);
+            await _clickupService.CreateOrUpdateTodoistTask(task);
 
-            return Ok("clickup webhook");
+            return Ok();
         }
     }
 }

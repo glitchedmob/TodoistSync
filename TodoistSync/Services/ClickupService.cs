@@ -1,33 +1,58 @@
 using System;
+using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
+using TodoistSync.Repositories;
 using Clickup = TodoistSync.Models.Clickup;
+using Todoist = TodoistSync.Models.Todoist;
 
 namespace TodoistSync.Services
 {
     public class ClickupService
     {
-        private readonly HttpClient _client;
-        private readonly IConfiguration _configuration;
+        private readonly TodoistRepository _todoistRepository;
 
-        public ClickupService(HttpClient client, IConfiguration configuration)
+        public ClickupService(TodoistRepository todoistRepository)
         {
-            _client = client;
-            _configuration = configuration;
-            _client.BaseAddress = new Uri("https://api.clickup.com/api/v2/");
-            _client.DefaultRequestHeaders.Add("Accept", "application/json");
-            _client.DefaultRequestHeaders.Authorization =
-                new AuthenticationHeaderValue(_configuration["CLICKUP_API_KEY"]);
+            _todoistRepository = todoistRepository;
         }
 
-        public async Task<Clickup.Task> GetTaskById(string taskId)
+        public async Task DeleteTodoistTaskIfExists(string clickupTaskId)
         {
-            var content = await _client.GetStringAsync($"task/{taskId}");
+            await _todoistRepository.LoadClickupTasks();
 
-            return JsonConvert.DeserializeObject<Clickup.Task>(content);
+            var todoistTask = _todoistRepository.ClickupTasks
+                .FirstOrDefault(t => GetClickupIdFromTodoistTask(t) == clickupTaskId);
+
+            if (todoistTask == null)
+            {
+                return;
+            }
+
+            await _todoistRepository.DeleteTask(todoistTask);
+        }
+
+        public async Task CreateOrUpdateTodoistTask(Clickup.Task task)
+        {
+            await _todoistRepository.LoadClickupTasks();
+            throw new System.NotImplementedException();
+        }
+
+        private string GetClickupIdFromTodoistTask(Todoist.Task task)
+        {
+            var clickupLink = task.Content
+                .Split('(', ')')
+                .FirstOrDefault(s => s.StartsWith("https://app.clickup.com/"));
+
+            if (clickupLink == null)
+            {
+                return null;
+            }
+
+            return clickupLink.Replace("https://app.clickup.com/t/", "").Replace("/", "");
         }
     }
 }

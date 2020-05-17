@@ -4,6 +4,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using TodoistSync.Middleware;
+using TodoistSync.Repositories;
 using TodoistSync.Services;
 
 namespace TodoistSync
@@ -24,7 +25,10 @@ namespace TodoistSync
                 .AddControllers()
                 .AddNewtonsoftJson();
 
-            services.AddHttpClient<ClickupService>();
+            services.AddTransient<TodoistService>();
+            services.AddTransient<ClickupService>();
+            services.AddHttpClient<ClickupRepository>();
+            services.AddHttpClient<TodoistRepository>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline
