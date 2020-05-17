@@ -71,6 +71,12 @@ namespace TodoistSync.Services
 
         private async Task UpdateTodoistTask(Clickup.Task clickupTask, Todoist.Task existingTask)
         {
+            if (clickupTask.Status.Type == "closed")
+            {
+                await _todoistRepository.CompleteTask(existingTask);
+                return;
+            }
+
             await _todoistRepository.UpdateTask(existingTask, FormatTodoistContent(clickupTask));
         }
 

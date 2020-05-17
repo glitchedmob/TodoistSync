@@ -74,6 +74,7 @@ namespace TodoistSync.Repositories
 
         public async Task CompleteTask(Todoist.Task task)
         {
+            await _client.PostAsync($"tasks/{task.Id}/close", null);
         }
 
         [JsonObject(ItemNullValueHandling = NullValueHandling.Ignore)]
