@@ -66,13 +66,34 @@ namespace TodoistSync.Services
                 return;
             }
 
-            await CreateTodoistTask(clickupTask);
+            if (string.IsNullOrEmpty(clickupTask.Parent))
+            {
+                await CreateTodoistTask(clickupTask);
+                return;
+            }
+
+            var parentTodoistTask = todoistClickupTasks
+                .FirstOrDefault(t => GetClickupIdFromTodoistTask(t) == clickupTask.Parent);
+
+            if (parentTodoistTask == null)
+            {
+                await CreateTodoistTask(clickupTask);
+                return;
+            }
+
+            await CreateTodoistTask(clickupTask, parentTodoistTask.Id);
         }
 
-        private async Task CreateTodoistTask(Clickup.Task clickupTask)
+        private async Task CreateTodoistTask(Clickup.Task clickupTask, long? parent)
         {
             var content = FormatTodoistContent(clickupTask);
-            await _todoistRepository.CreateTask(content, new List<long> { _todoistRepository.ClickupLabelId });
+
+            await _todoistRepository.CreateTask(content, new List<long> { _todoistRepository.ClickupLabelId }, parent);
+        }
+
+        private Task CreateTodoistTask(Clickup.Task clickupTask)
+        {
+            return CreateTodoistTask(clickupTask, null);
         }
 
         private async Task UpdateTodoistTask(Clickup.Task clickupTask, Todoist.Task existingTask)

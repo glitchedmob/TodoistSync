@@ -39,6 +39,7 @@ namespace TodoistSync.Repositories
         public async Task CreateTask(
             string content,
             List<long> labelIds,
+            long? parent = null,
             string dueDate = null,
             DateTimeOffset? dueDatetime = null)
         {
@@ -46,6 +47,7 @@ namespace TodoistSync.Repositories
             {
                 Content = content,
                 LabelIds = labelIds,
+                Parent = parent,
                 DueDate = dueDate,
                 DueDatetime = dueDatetime,
             });
@@ -81,8 +83,13 @@ namespace TodoistSync.Repositories
         private class TaskPostBody
         {
             [JsonProperty("content")] public string Content { get; set; }
+
             [JsonProperty("label_ids")] public List<long> LabelIds { get; set; }
+
+            [JsonProperty("parent")] public long? Parent { get; set; }
+
             [JsonProperty("due_date")] public string DueDate { get; set; }
+
             [JsonProperty("due_datetime")] public DateTimeOffset? DueDatetime { get; set; }
         }
     }
