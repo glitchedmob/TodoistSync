@@ -43,29 +43,40 @@ namespace TodoistSync.Services
             var isAssigned = clickupTask.Assignees.FirstOrDefault(u => u.Id == _clickupRepository.ClickupUserId) !=
                              null;
 
+            // If the task is not assigned to the user we care about and it's not in Todoist
+            // It's someone else's task and we don't need to do anything
             if (!isAssigned && existingTodoistTask == null)
             {
                 return;
             }
 
+            // If the task is not assigned but it is in Todoist then it must have been
+            // unassigned in Clickup and needs deleted
             if (!isAssigned)
             {
                 await _todoistRepository.DeleteTask(existingTodoistTask);
                 return;
             }
 
+            // If the task is assigned and in Todoist then we need to make sure all the
+            // details are up to date
             if (existingTodoistTask != null)
             {
                 await UpdateTodoistTask(clickupTask, existingTodoistTask);
                 return;
             }
 
-            // Don't add already closed to tasks to Todoist
+            // At this point we know the task is assigned to the user we care about, but it's not in Todoist and
+            // it probably needs created. However, we need to make sure the task isn't marked as closed in Clickup.
+            // This check allows us to clear a task in Todoist and have it clear in Clickup without being recreated.
             if (clickupTask.Status.Type == "closed")
             {
                 return;
             }
 
+
+            // After the above checks we know we need to create the task in Todoist.
+            // We do that right away if the current task is not a child task
             if (string.IsNullOrEmpty(clickupTask.Parent))
             {
                 await CreateTodoistTask(clickupTask);
@@ -75,6 +86,8 @@ namespace TodoistSync.Services
             var parentTodoistTask = todoistClickupTasks
                 .FirstOrDefault(t => GetClickupIdFromTodoistTask(t) == clickupTask.Parent);
 
+            // If we can't find the parent task in Todoist for some reason (an example being the parent task
+            // wasn't assigned to the user we care about) we just create it normally
             if (parentTodoistTask == null)
             {
                 await CreateTodoistTask(clickupTask);
