@@ -47,7 +47,7 @@ namespace TodoistSync.Controllers
                     await _clickupRepository.CompleteTask(clickupTaskId);
                     break;
                 case "item:updated":
-                    await _clickupRepository.UpdateTask(clickupTaskId, webhookEvent.EventData.Due?.Date);
+                    await _clickupService.UpdateClickupTask(clickupTaskId, webhookEvent.EventData.Due?.Date);
                     break;
             }
 

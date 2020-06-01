@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
+using TimeZoneConverter;
 using Todoist = TodoistSync.Models.Todoist;
 
 namespace TodoistSync.Repositories
@@ -13,12 +14,14 @@ namespace TodoistSync.Repositories
     public class TodoistRepository
     {
         public readonly long ClickupLabelId;
+        public readonly TimeZoneInfo TodoistTimeZone;
         private readonly HttpClient _client;
 
         public TodoistRepository(HttpClient client, IConfiguration configuration)
         {
             _client = client;
             ClickupLabelId = long.Parse(configuration["TODOIST_CLICKUP_LABEL_ID"]);
+            TodoistTimeZone = TZConvert.GetTimeZoneInfo("Central Standard Time");
             _client.BaseAddress = new Uri("https://api.todoist.com/rest/v1/");
             _client.DefaultRequestHeaders.Authorization =
                 new AuthenticationHeaderValue("Bearer", configuration["TODOIST_API_KEY"]);

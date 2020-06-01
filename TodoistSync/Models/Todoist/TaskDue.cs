@@ -6,6 +6,6 @@ namespace TodoistSync.Models.Todoist
     {
         public bool Recurring { get; set; }
         public string String { get; set; }
-        public DateTimeOffset Date { get; set; }
+        public DateTimeOffset? Date { get; set; }
     }
 }

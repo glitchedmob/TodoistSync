@@ -2,7 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using TimeZoneConverter;
 using TodoistSync.Repositories;
+using TodoistSync.Utilities;
 using Clickup = TodoistSync.Models.Clickup;
 using Todoist = TodoistSync.Models.Todoist;
 
@@ -136,7 +138,10 @@ namespace TodoistSync.Services
 
             var updatedContent = FormatTodoistContent(clickupTask);
 
-            if (updatedContent == existingTask.Content && clickupTask.DueDate == existingTask.Due?.Date)
+            if (
+                updatedContent == existingTask.Content &&
+                clickupTask.DueDate == existingTask.Due?.Date.UpdateTimeZone(_todoistRepository.TodoistTimeZone)
+            )
             {
                 return;
             }
@@ -146,6 +151,25 @@ namespace TodoistSync.Services
                 updatedContent,
                 dueDatetime: clickupTask.DueDate
             );
+        }
+
+        public async Task UpdateClickupTask(string taskId, DateTimeOffset? dueDate)
+        {
+            var clickupTask = await _clickupRepository.GetTaskById(taskId);
+
+            if (clickupTask == null)
+            {
+                return;
+            }
+
+            dueDate = dueDate.UpdateTimeZone(_todoistRepository.TodoistTimeZone);
+
+            if (clickupTask.DueDate == dueDate)
+            {
+                return;
+            }
+
+            await _clickupRepository.UpdateTask(taskId, dueDate?.ToUnixTimeMilliseconds());
         }
 
         public string GetClickupIdFromTodoistContent(string content)
