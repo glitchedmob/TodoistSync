@@ -33,7 +33,7 @@ namespace TodoistSync.Models.Clickup
         public Uri ThumbnailLarge { get; set; }
 
         [JsonProperty("is_folder")]
-        public bool IsFolder { get; set; }
+        public bool? IsFolder { get; set; }
 
         [JsonProperty("mimetype")]
         public string Mimetype { get; set; }
