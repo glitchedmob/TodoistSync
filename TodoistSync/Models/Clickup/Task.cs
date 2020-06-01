@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
+using TodoistSync.Utilities;
 
 namespace TodoistSync.Models.Clickup
 {
@@ -25,13 +27,16 @@ namespace TodoistSync.Models.Clickup
         public string Orderindex { get; set; }
 
         [JsonProperty("date_created")]
-        public string DateCreated { get; set; }
+        [JsonConverter(typeof(EpochDateTimeOffsetConverter))]
+        public DateTimeOffset? DateCreated { get; set; }
 
         [JsonProperty("date_updated")]
-        public string DateUpdated { get; set; }
+        [JsonConverter(typeof(EpochDateTimeOffsetConverter))]
+        public DateTimeOffset? DateUpdated { get; set; }
 
         [JsonProperty("date_closed")]
-        public string DateClosed { get; set; }
+        [JsonConverter(typeof(EpochDateTimeOffsetConverter))]
+        public DateTimeOffset? DateClosed { get; set; }
 
         [JsonProperty("archived")]
         public bool Archived { get; set; }
@@ -58,7 +63,8 @@ namespace TodoistSync.Models.Clickup
         public TaskPriority Priority { get; set; }
 
         [JsonProperty("due_date")]
-        public string DueDate { get; set; }
+        [JsonConverter(typeof(EpochDateTimeOffsetConverter))]
+        public DateTimeOffset? DueDate { get; set; }
 
         [JsonProperty("start_date")]
         public string StartDate { get; set; }

@@ -26,9 +26,16 @@ namespace TodoistSync.Repositories
 
         public async Task<Clickup.Task> GetTaskById(string taskId)
         {
-            var content = await _client.GetStringAsync($"task/{taskId}");
+            try
+            {
+                var content = await _client.GetStringAsync($"task/{taskId}");
 
-            return JsonConvert.DeserializeObject<Clickup.Task>(content);
+                return JsonConvert.DeserializeObject<Clickup.Task>(content);
+            }
+            catch
+            {
+                return null;
+            }
         }
 
         public async Task CompleteTask(string taskId)
@@ -40,6 +47,29 @@ namespace TodoistSync.Repositories
 
             var content = new StringContent(json, Encoding.UTF8, "application/json");
 
+            await _client.PutAsync($"task/{taskId}", content);
+        }
+
+        public async Task UpdateTask(string taskId, DateTimeOffset dueDate)
+        {
+            var clickupTask = await GetTaskById(taskId);
+
+            if (clickupTask == null)
+            {
+                return;
+            }
+
+            if (clickupTask.DueDate == dueDate)
+            {
+                return;
+            }
+
+            var json = JsonConvert.SerializeObject(new
+            {
+                due_date = dueDate.ToUnixTimeMilliseconds(),
+            });
+
+            var content = new StringContent(json, Encoding.UTF8, "application/json");
             await _client.PutAsync($"task/{taskId}", content);
         }
     }

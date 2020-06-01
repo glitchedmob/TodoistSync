@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -33,9 +34,20 @@ namespace TodoistSync.Services
             await _todoistRepository.DeleteTask(existingTask);
         }
 
-        public async Task CreateOrUpdateTodoistTask(Clickup.Task clickupTask)
+        public async Task CreateOrUpdateTodoistTask(string taskId)
         {
-            var todoistClickupTasks = await _todoistRepository.GetTasksByLabelId(_todoistRepository.ClickupLabelId);
+            // Storing the System.Threading.Tasks.Task instances without await to run
+            // each request in parallel
+            var clickupRequestTask = _clickupRepository.GetTaskById(taskId);
+            var todoistRequestTask = _todoistRepository.GetTasksByLabelId(_todoistRepository.ClickupLabelId);
+
+            var clickupTask = await clickupRequestTask;
+            var todoistClickupTasks = await todoistRequestTask;
+
+            if (clickupTask == null)
+            {
+                return;
+            }
 
             var existingTodoistTask = todoistClickupTasks
                 .FirstOrDefault(t => GetClickupIdFromTodoistTask(t) == clickupTask.Id);
@@ -101,7 +113,12 @@ namespace TodoistSync.Services
         {
             var content = FormatTodoistContent(clickupTask);
 
-            await _todoistRepository.CreateTask(content, new List<long> { _todoistRepository.ClickupLabelId }, parent);
+            await _todoistRepository.CreateTask(
+                content,
+                new List<long> { _todoistRepository.ClickupLabelId },
+                parent,
+                dueDatetime: clickupTask.DueDate
+            );
         }
 
         private Task CreateTodoistTask(Clickup.Task clickupTask)
@@ -117,7 +134,18 @@ namespace TodoistSync.Services
                 return;
             }
 
-            await _todoistRepository.UpdateTask(existingTask, FormatTodoistContent(clickupTask));
+            var updatedContent = FormatTodoistContent(clickupTask);
+
+            if (updatedContent == existingTask.Content && clickupTask.DueDate == existingTask.Due?.Date)
+            {
+                return;
+            }
+
+            await _todoistRepository.UpdateTask(
+                existingTask,
+                updatedContent,
+                dueDatetime: clickupTask.DueDate
+            );
         }
 
         public string GetClickupIdFromTodoistContent(string content)

@@ -34,18 +34,21 @@ namespace TodoistSync.Controllers
                 return Ok();
             }
 
-            if (webhookEvent.EventName == "item:completed")
+            var clickupTaskId = _clickupService.GetClickupIdFromTodoistContent(webhookEvent.EventData.Content);
+
+            if (clickupTaskId == null)
             {
-                var clickupTaskId = _clickupService.GetClickupIdFromTodoistContent(webhookEvent.EventData.Content);
-
-                if (clickupTaskId == null)
-                {
-                    return Ok();
-                }
-
-                await _clickupRepository.CompleteTask(clickupTaskId);
-
                 return Ok();
+            }
+
+            switch (webhookEvent.EventName)
+            {
+                case "item:completed":
+                    await _clickupRepository.CompleteTask(clickupTaskId);
+                    break;
+                case "item:updated":
+                    await _clickupRepository.UpdateTask(clickupTaskId, webhookEvent.EventData.Due.Date);
+                    break;
             }
 
             return Ok();

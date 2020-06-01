@@ -12,12 +12,10 @@ namespace TodoistSync.Controllers
     public class ClickupController : ControllerBase
     {
         private readonly ClickupService _clickupService;
-        private readonly ClickupRepository _clickupRepository;
 
-        public ClickupController(ClickupService clickupService, ClickupRepository clickupRepository)
+        public ClickupController(ClickupService clickupService)
         {
             _clickupService = clickupService;
-            _clickupRepository = clickupRepository;
         }
 
         [HttpPost("webhook")]
@@ -29,9 +27,7 @@ namespace TodoistSync.Controllers
                 return Ok();
             }
 
-            var task = await _clickupRepository.GetTaskById(webhookEvent.TaskId);
-
-            await _clickupService.CreateOrUpdateTodoistTask(task);
+            await _clickupService.CreateOrUpdateTodoistTask(webhookEvent.TaskId);
 
             return Ok();
         }

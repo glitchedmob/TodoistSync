@@ -52,7 +52,7 @@ namespace TodoistSync.Models.Todoist
         public Uri Url { get; set; }
 
         [JsonProperty("due")]
-        public Task Due { get; set; }
+        public TaskDue Due { get; set; }
 
         [JsonProperty("priority")]
         public long? Priority { get; set; }
