@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
+using TimeZoneConverter;
 using Clickup = TodoistSync.Models.Clickup;
 
 namespace TodoistSync.Repositories
@@ -50,13 +51,20 @@ namespace TodoistSync.Repositories
             await _client.PutAsync($"task/{taskId}", content);
         }
 
-        public async Task UpdateTask(string taskId, DateTimeOffset dueDate)
+        public async Task UpdateTask(string taskId, DateTimeOffset? dueDate)
         {
             var clickupTask = await GetTaskById(taskId);
 
             if (clickupTask == null)
             {
                 return;
+            }
+
+            if (dueDate != null)
+            {
+                var centralTimeZone = TZConvert.GetTimeZoneInfo("Central Standard Time");
+                var modifiedDueDate = TimeZoneInfo.ConvertTime(dueDate.Value, centralTimeZone);
+                dueDate = dueDate.Value.Subtract(modifiedDueDate.Offset).ToOffset(modifiedDueDate.Offset);
             }
 
             if (clickupTask.DueDate == dueDate)
@@ -66,7 +74,7 @@ namespace TodoistSync.Repositories
 
             var json = JsonConvert.SerializeObject(new
             {
-                due_date = dueDate.ToUnixTimeMilliseconds(),
+                due_date = dueDate?.ToUnixTimeMilliseconds(),
             });
 
             var content = new StringContent(json, Encoding.UTF8, "application/json");
