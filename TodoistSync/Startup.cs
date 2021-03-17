@@ -42,6 +42,7 @@ namespace TodoistSync
             if (!env.IsDevelopment())
             {
                 app.UseHttpsRedirection();
+                // Ensures Lambda is kept alive until errors can be properly reported
                 app.UseMiddleware<SentryEventsFlusherMiddleware>();
             }
 

@@ -38,49 +38,49 @@ namespace TodoistSync.Services
 
         public async Task CreateOrUpdateTodoistTask(string taskId)
         {
-            // Storing the System.Threading.Tasks.Task instances without await to run
-            // each request in parallel
+            // Fire off tasks then await later so they're executed in parallel
             var clickupRequestTask = _clickupRepository.GetTaskById(taskId);
             var todoistRequestTask = _todoistRepository.GetTasksByLabelId(_todoistRepository.ClickupLabelId);
 
             var clickupTask = await clickupRequestTask;
-            var todoistClickupTasks = await todoistRequestTask;
+            var allTodoistClickupTasks = await todoistRequestTask;
 
             if (clickupTask == null)
             {
                 return;
             }
 
-            var existingTodoistTask = todoistClickupTasks
+            var existingTodoistTask = allTodoistClickupTasks
                 .FirstOrDefault(t => GetClickupIdFromTodoistTask(t) == clickupTask.Id);
 
-            var isAssigned = clickupTask.Assignees.FirstOrDefault(u => u.Id == _clickupRepository.ClickupUserId) !=
-                             null;
+            var clickupUser = clickupTask.Assignees.FirstOrDefault(u => u.Id == _clickupRepository.ClickupUserId);
 
-            // If the task is not assigned to the user we care about and it's not in Todoist
-            // It's someone else's task and we don't need to do anything
-            if (!isAssigned && existingTodoistTask == null)
+            var hasBeenAssignedToOurClickupUser = clickupUser != null;
+
+            // If the task is not assigned to the user we're syncing for and it's not in Todoist that
+            // means clickup is notifying us about a task we don't care about and we don't do anything
+            if (!hasBeenAssignedToOurClickupUser && existingTodoistTask == null)
             {
                 return;
             }
 
             // If the task is not assigned but it is in Todoist then it must have been
-            // unassigned in Clickup and needs deleted
-            if (!isAssigned)
+            // unassigned in Clickup and needs removed from Todoist
+            if (!hasBeenAssignedToOurClickupUser)
             {
                 await _todoistRepository.DeleteTask(existingTodoistTask);
                 return;
             }
 
             // If the task is assigned and in Todoist then we need to make sure all the
-            // details are up to date
+            // to update any new details
             if (existingTodoistTask != null)
             {
-                await UpdateTodoistTask(clickupTask, existingTodoistTask);
+                await UpdateClickupTaskInTodoist(clickupTask, existingTodoistTask);
                 return;
             }
 
-            // At this point we know the task is assigned to the user we care about, but it's not in Todoist and
+            // At this point we know the task is assigned to our clickup user, but it's not in Todoist and
             // it probably needs created. However, we need to make sure the task isn't marked as closed in Clickup.
             // This check allows us to clear a task in Todoist and have it clear in Clickup without being recreated.
             if (clickupTask.Status.Type == "closed")
@@ -88,30 +88,30 @@ namespace TodoistSync.Services
                 return;
             }
 
-
             // After the above checks we know we need to create the task in Todoist.
             // We do that right away if the current task is not a child task
             if (string.IsNullOrEmpty(clickupTask.Parent))
             {
-                await CreateTodoistTask(clickupTask);
+                await CreateClickupTaskInTodoist(clickupTask);
                 return;
             }
 
-            var parentTodoistTask = todoistClickupTasks
+            var parentTodoistTask = allTodoistClickupTasks
                 .FirstOrDefault(t => GetClickupIdFromTodoistTask(t) == clickupTask.Parent);
 
-            // If we can't find the parent task in Todoist for some reason (an example being the parent task
-            // wasn't assigned to the user we care about) we just create it normally
+            // If we can't find the parent task in Todoist for some reason (e.g. the parent task
+            // wasn't assigned to our Clickup user) we just create it normally
             if (parentTodoistTask == null)
             {
-                await CreateTodoistTask(clickupTask);
+                await CreateClickupTaskInTodoist(clickupTask);
                 return;
             }
 
-            await CreateTodoistTask(clickupTask, parentTodoistTask.Id);
+            // Otherwise if we do have a parent task we create the todoist task under that task
+            await CreateClickupTaskInTodoist(clickupTask, parentTodoistTask.Id);
         }
 
-        private async Task CreateTodoistTask(Clickup.Task clickupTask, long? parent)
+        private async Task CreateClickupTaskInTodoist(Clickup.Task clickupTask, long? parent)
         {
             var content = FormatTodoistContent(clickupTask);
 
@@ -123,33 +123,33 @@ namespace TodoistSync.Services
             );
         }
 
-        private Task CreateTodoistTask(Clickup.Task clickupTask)
+        private Task CreateClickupTaskInTodoist(Clickup.Task clickupTask)
         {
-            return CreateTodoistTask(clickupTask, null);
+            return CreateClickupTaskInTodoist(clickupTask, null);
         }
 
-        private async Task UpdateTodoistTask(Clickup.Task clickupTask, Todoist.Task existingTask)
+        private async Task UpdateClickupTaskInTodoist(Clickup.Task clickupTask, Todoist.Task todoistTask)
         {
             if (clickupTask.Status.Type == "closed")
             {
-                await _todoistRepository.CompleteTask(existingTask);
+                await _todoistRepository.CompleteTask(todoistTask);
                 return;
             }
 
             var updatedContent = FormatTodoistContent(clickupTask);
 
             if (
-                updatedContent == existingTask.Content &&
-                clickupTask.DueDate == existingTask.Due?.Date.UpdateTimeZone(_todoistRepository.TodoistTimeZone)
+                updatedContent == todoistTask.Content &&
+                clickupTask.DueDate == todoistTask.Due?.Date.UpdateTimeZone(_todoistRepository.TodoistTimeZone)
             )
             {
                 return;
             }
 
             await _todoistRepository.UpdateTask(
-                existingTask,
+                todoistTask,
                 updatedContent,
-                dueDatetime: clickupTask.DueDate
+                dueDatetime: null
             );
         }
 
@@ -170,6 +170,11 @@ namespace TodoistSync.Services
             }
 
             await _clickupRepository.UpdateTask(taskId, dueDate?.ToUnixTimeMilliseconds());
+        }
+
+        public async Task CompleteTask(string taskId)
+        {
+            await _clickupRepository.CompleteTask(taskId);
         }
 
         public string GetClickupIdFromTodoistContent(string content)

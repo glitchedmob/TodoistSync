@@ -13,23 +13,20 @@ namespace TodoistSync.Controllers
     public class TodoistController : ControllerBase
     {
         private readonly ClickupService _clickupService;
-        private readonly ClickupRepository _clickupRepository;
-        private readonly TodoistRepository _todoistRepository;
+        private readonly TodoistService _todoistService;
 
         public TodoistController(
             ClickupService clickupService,
-            ClickupRepository clickupRepository,
-            TodoistRepository todoistRepository)
+            TodoistService todoistService)
         {
             _clickupService = clickupService;
-            _clickupRepository = clickupRepository;
-            _todoistRepository = todoistRepository;
+            _todoistService = todoistService;
         }
 
         [HttpPost("webhook")]
         public async Task<IActionResult> Webhook(Todoist.WebhookEvent webhookEvent)
         {
-            if (!webhookEvent.EventData.Labels.Contains(_todoistRepository.ClickupLabelId))
+            if (!webhookEvent.EventData.Labels.Contains(_todoistService.ClickupLabelId))
             {
                 return Ok();
             }
@@ -44,7 +41,7 @@ namespace TodoistSync.Controllers
             switch (webhookEvent.EventName)
             {
                 case "item:completed":
-                    await _clickupRepository.CompleteTask(clickupTaskId);
+                    await _clickupService.CompleteTask(clickupTaskId);
                     break;
                 case "item:updated":
                     await _clickupService.UpdateClickupTask(clickupTaskId, webhookEvent.EventData.Due?.Date);

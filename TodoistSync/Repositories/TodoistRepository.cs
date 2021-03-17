@@ -16,13 +16,14 @@ namespace TodoistSync.Repositories
         public readonly long ClickupLabelId;
         public readonly TimeZoneInfo TodoistTimeZone;
         private readonly HttpClient _client;
+        private const string TodoistBaseUrl = "https://api.todoist.com/rest/v1/";
 
-        public TodoistRepository(HttpClient client, IConfiguration configuration)
+        public TodoistRepository(IConfiguration configuration)
         {
-            _client = client;
+            _client = new HttpClient();
             ClickupLabelId = long.Parse(configuration["TODOIST_CLICKUP_LABEL_ID"]);
             TodoistTimeZone = TZConvert.GetTimeZoneInfo("Central Standard Time");
-            _client.BaseAddress = new Uri("https://api.todoist.com/rest/v1/");
+            _client.BaseAddress = new Uri(TodoistBaseUrl);
             _client.DefaultRequestHeaders.Authorization =
                 new AuthenticationHeaderValue("Bearer", configuration["TODOIST_API_KEY"]);
         }

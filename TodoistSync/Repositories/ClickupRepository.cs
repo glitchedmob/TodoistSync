@@ -16,9 +16,9 @@ namespace TodoistSync.Repositories
         public readonly string ClickupUserId;
         private readonly HttpClient _client;
 
-        public ClickupRepository(HttpClient client, IConfiguration configuration)
+        public ClickupRepository(IConfiguration configuration)
         {
-            _client = client;
+            _client = new HttpClient();
             ClickupUserId = configuration["CLICKUP_USER_ID"];
             _client.BaseAddress = new Uri("https://api.clickup.com/api/v2/");
             _client.DefaultRequestHeaders.Add("Accept", "application/json");
