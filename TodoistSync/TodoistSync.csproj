@@ -1,15 +1,17 @@
 <Project Sdk="Microsoft.NET.Sdk.Web">
-    <PropertyGroup>
-        <TargetFramework>netcoreapp3.1</TargetFramework>
-        <GenerateRuntimeConfigurationFiles>true</GenerateRuntimeConfigurationFiles>
-        <AWSProjectType>Lambda</AWSProjectType>
-    </PropertyGroup>
-    <ItemGroup>
-        <PackageReference Include="AWSSDK.S3" Version="3.3.110.62" />
-        <PackageReference Include="AWSSDK.Extensions.NETCore.Setup" Version="3.3.100.1" />
-        <PackageReference Include="Amazon.Lambda.AspNetCoreServer" Version="5.1.1" />
-        <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="3.1.4" />
-        <PackageReference Include="Sentry.AspNetCore" Version="2.1.1" />
-        <PackageReference Include="TimeZoneConverter" Version="3.2.0" />
-    </ItemGroup>
+
+  <PropertyGroup>
+    <TargetFramework>net7.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UserSecretsId>83c69c34-ae59-4bb9-a245-13bbadf13c54</UserSecretsId>
+    <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="7.0.13" />
+    <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.19.4" />
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0" />
+  </ItemGroup>
+
 </Project>
